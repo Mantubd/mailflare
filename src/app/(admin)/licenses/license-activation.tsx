@@ -171,6 +171,5 @@ export function LicenseActivation({ children }: { children?: ReactNode } = {}) {
 				</div>
 			</CardContent>
 		</Card>
-		</>
 	);
 }
