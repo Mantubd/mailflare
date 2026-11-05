@@ -15,7 +15,7 @@ import type { ActivatableLicensePlan, LicenseAction } from "./types";
 import { formatLicensePlan, loadLicenseStatus, runLicenseAction } from "./utils";
 
 // children is the pricing grid: the activated card goes above it, the key form below.
-export function LicenseActivation({ children }: { children?: ReactNode }) {
+export function LicenseActivation({ children }: { children?: ReactNode } = {}) {
 	const { t } = useLanguage();
 	const [license, setLicense] = useState<LicenseStatus | null>(null);
 	const [licenseKey, setLicenseKey] = useState("");
@@ -67,13 +67,12 @@ export function LicenseActivation({ children }: { children?: ReactNode }) {
 		}
 	}
 
-	if (loading) return <>{children}<Skeleton className="h-64 w-full rounded-3xl" /></>;
+	if (loading) return <Skeleton className="h-64 w-full rounded-3xl" />;
 
 	const hasActivation = !!license?.activatedAt && license.state !== "deactivated";
 
 	if (license?.active) {
 		return (
-			<>
 			<Card className="rounded-3xl border-0 bg-white px-6">
 				<CardContent className="flex items-start gap-4 py-8">
 					<span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700">
@@ -84,22 +83,19 @@ export function LicenseActivation({ children }: { children?: ReactNode }) {
 						<p className="mt-2 text-sm leading-6 text-neutral-600">
 							{t("licenses.activatedBody", { plan: formatLicensePlan(license.plan, t) })}
 						</p>
-						<p className="mt-1 text-sm text-neutral-500">{license.seatLimit === null ? t("licenses.seatsUnlimited") : t("licenses.seats", { limit: license.seatLimit })}</p>
-						<Button type="button" variant="outline" className="mt-5" onClick={() => void submit("deactivate")} disabled={action !== null}>
-							{action === "deactivate" ? t("licenses.deactivating") : t("licenses.deactivate")}
-						</Button>
-						{status && <p role="status" className="mt-3 text-sm text-neutral-500">{status}</p>}
+						<div className="mt-4 flex flex-wrap gap-2 text-xs font-medium">
+							<span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700 border border-emerald-200">✓ Unlimited account seats</span>
+							<span className="rounded-full bg-blue-50 px-3 py-1 text-blue-700 border border-blue-200">✓ Custom branding & logo</span>
+							<span className="rounded-full bg-indigo-50 px-3 py-1 text-indigo-700 border border-indigo-200">✓ Shared mailboxes</span>
+							<span className="rounded-full bg-purple-50 px-3 py-1 text-purple-700 border border-purple-200">✓ Full admin controls</span>
+						</div>
 					</div>
 				</CardContent>
 			</Card>
-			{children}
-			</>
 		);
 	}
 
 	return (
-		<>
-		{children}
 		<Card className="rounded-3xl border-0 bg-white px-6">
 			<CardContent className="space-y-5 pb-6">
 				{hasActivation && license && (
