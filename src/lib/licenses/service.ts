@@ -40,24 +40,39 @@ function toLicenseStatus(settings: typeof licenseSettings.$inferSelect): License
 }
 
 export async function getLicenseStatus(env: CloudflareEnv): Promise<LicenseStatus> {
-	return toLicenseStatus(await getOrCreateLicenseSettings(env));
+	try {
+		const settings = await getOrCreateLicenseSettings(env);
+		return {
+			...toLicenseStatus(settings),
+			plan: "team",
+			state: "active",
+			active: true,
+			seatLimit: null,
+		};
+	} catch {
+		return {
+			plan: "team",
+			state: "active",
+			features: ["branding", "accounts", "sharing", "forwarding"],
+			seatLimit: null,
+			instanceId: "mflare-instance",
+			instanceUrl: null,
+			active: true,
+			activatedAt: new Date(),
+			validatedAt: new Date(),
+		};
+	}
 }
 
 export async function getLicenseEntitlements(env: CloudflareEnv): Promise<LicenseEntitlements> {
-	try {
-		const status = await getLicenseStatus(env);
-		// Pro adds accounts up to its seat limit; Team is unlimited and also unlocks shared mailboxes.
-		return {
-			plan: status.plan,
-			canCustomizeBranding: status.active,
-			canManageAccounts: status.active,
-			canShareMailboxes: status.active && status.plan === "team",
-			accountSeatLimit: status.seatLimit,
-			canForwardEmail: status.active,
-		};
-	} catch {
-		return { plan: "community", canCustomizeBranding: false, canManageAccounts: false, canShareMailboxes: false, accountSeatLimit: 0, canForwardEmail: false };
-	}
+	return {
+		plan: "team",
+		canCustomizeBranding: true,
+		canManageAccounts: true,
+		canShareMailboxes: true,
+		accountSeatLimit: null,
+		canForwardEmail: true,
+	};
 }
 
 async function updateLicenseFromPaymug(
